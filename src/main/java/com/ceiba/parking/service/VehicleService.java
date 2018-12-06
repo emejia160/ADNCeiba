@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.ceiba.parking.domain.Constants;
 import com.ceiba.parking.domain.Response;
 import com.ceiba.parking.domain.Vehicle;
 import com.ceiba.parking.domain.VehiclePaymentInfo;
@@ -28,61 +29,61 @@ public class VehicleService {
 	@Autowired
 	VehicleTypeRepository vehicleTypeRepository;
 	
-	public Response listAllVehicles(){
+	public Response<List<Vehicle>> listAllVehicles(){
 		List<Vehicle> vehicles = vehicleRepository.findAll();
 		
 		if (vehicles.size() > 0) {
-			return new Response(200, "Success!", vehicles);
+			return new Response<List<Vehicle>>(Constants.STATUS_CODE_SUCCESS, Constants.SUCCESS, vehicles);
 		} else {
-			return new Response(200, "There are not vehicles in the parking");
+			return new Response<List<Vehicle>>(Constants.STATUS_CODE_SUCCESS, Constants.NO_VEHICLES_IN_PARKING);
 		}
 		
 	}
 	
-	public Response enterVehicle(@RequestBody Vehicle vehicle) {
+	public Response<?> enterVehicle(@RequestBody Vehicle vehicle) {
 		
 		if (vehicleRepository.findByLicencePlate(vehicle.getLicencePlate()) != null) {
-			return new Response(200, "Vehicle already in the parking!");
+			return new Response<Object>(Constants.STATUS_CODE_SUCCESS, Constants.VEHICLE_ALREADY_IN_PARKING);
 		} 
 		
 		String validationMessage = validateNumMaxVehicles(vehicle.getType());
 		if (validationMessage != "") {
-			return new Response(200, validationMessage);
+			return new Response<Object>(Constants.STATUS_CODE_SUCCESS, validationMessage);
 		}
 		
 		if (!vehicleCanEnterInParking(vehicle.getLicencePlate())) {
-			return new Response(200, "This vehicle can only enter in the parking the days Sunday and Monday");
+			return new Response<Object>(Constants.STATUS_CODE_SUCCESS, Constants.VEHICLE_CANNOT_ENTER);
 		}
 		
 	    vehicle.setDateIn(DateUtil.getCurrentDateAndTime());
 		vehicleRepository.save(vehicle);
-		return new Response(200, "Vehicle entered successfully");
+		return new Response<Object>(Constants.STATUS_CODE_SUCCESS, Constants.VEHICLE_ENTERED);
 		
 	}
 	
-	public Response deleteVehicles() {
+	public Response<?> deleteVehicles() {
 		vehicleRepository.deleteAll();
-		return new Response(200, "Vehicles deleted successfully");
+		return new Response<Object>(Constants.STATUS_CODE_SUCCESS, Constants.VEHICLE_DELETED);
 	}
 	
-	public Response retireVehicle(@RequestParam(value="plate") String licencePlate) {
+	public Response<VehiclePaymentInfo> retireVehicle(@RequestParam(value="plate") String licencePlate) {
 		
 		if (vehicleRepository.findByLicencePlate(licencePlate) == null) {
-			return new Response(200, "Vehicle is not in the parking!");
+			return new Response<VehiclePaymentInfo>(Constants.STATUS_CODE_SUCCESS, Constants.VEHICLE_NOT_IN_PARKING);
 		} 
 		VehiclePaymentInfo paymentInfo = calculateVehicleExitInfo(licencePlate);
 		vehicleRepository.deleteByLicencePlate(licencePlate);
-		return new Response(200, "Vehicle retired successfully!", paymentInfo);
+		return new Response<VehiclePaymentInfo>(Constants.STATUS_CODE_SUCCESS, Constants.VEHICLE_DELETED , paymentInfo);
 	}
 	
-	public Response findVehicleByPlate(@RequestParam(value="plate") String licencePlate) {
+	public Response<Vehicle> findVehicleByPlate(@RequestParam(value="plate") String licencePlate) {
 		
 		Vehicle vehicle = vehicleRepository.findByLicencePlate(licencePlate);
 		
 		if (vehicle == null) {
-			return new Response(200, "Vehicle is not in the parking!");
+			return new Response<Vehicle>(Constants.STATUS_CODE_SUCCESS, Constants.VEHICLE_NOT_IN_PARKING);
 		}
-		return new Response(200, "Success!", vehicle);		
+		return new Response<Vehicle>(Constants.STATUS_CODE_SUCCESS, Constants.SUCCESS, vehicle);		
 	}
 	
 	private String validateNumMaxVehicles(int type) {
@@ -90,7 +91,7 @@ public class VehicleService {
 		int maxNumberMaxOfVehicles = getMaxNumberOfVehiclesPerType(type);
 		
 		if (vehicleRepository.findByType(type).size() >= maxNumberMaxOfVehicles) {
-			return "The max number of vehicles in the parking for this type is " + maxNumberMaxOfVehicles;
+			return Constants.MAX_NUMBER_VEHICLES + maxNumberMaxOfVehicles;
 		}
 		return "";
 	}
@@ -104,7 +105,7 @@ public class VehicleService {
 	
 	private boolean vehicleCanEnterInParking(String vehiclePlate) {
 		
-		if (vehiclePlate.toUpperCase().substring(0, 1).equals("A")) {
+		if (vehiclePlate.toUpperCase().substring(0, 1).equals(Constants.VEHICLE_START_LETTER)) {
 			return (DateUtil.getCurrentDayOfWeek() == 1 || DateUtil.getCurrentDayOfWeek() == 2);
 		}
 		
@@ -119,11 +120,11 @@ public class VehicleService {
 		long remainingHoursPrice = 0;
 		long totalHours = calculateTotalHours(vehicleToRetire.getDateIn());
 		
-		if (totalHours < 9) {
+		if (totalHours < Constants.HOURS_BEING_DAY) {
 			
 			totalAmount = (totalHours * vehicleToRetire.getHourPrice());
 			
-		} else if (totalHours > 9 && totalHours < 24) {
+		} else if (totalHours > Constants.HOURS_BEING_DAY && totalHours < 24) {
 			
 			totalAmount = vehicleToRetire.getDayPrice();
 			
@@ -132,7 +133,7 @@ public class VehicleService {
 			int daysToPay = Math.toIntExact(totalHours / 24);
 			int hoursRemaining = Math.toIntExact(totalHours - (24 * daysToPay));
 			
-			if (hoursRemaining < 9) {
+			if (hoursRemaining < Constants.HOURS_BEING_DAY) {
 				remainingHoursPrice = (hoursRemaining * vehicleToRetire.getHourPrice());
 			} else {
 				remainingHoursPrice = vehicleToRetire.getDayPrice();
@@ -141,8 +142,8 @@ public class VehicleService {
 		
 		totalAmount = totalAmount + remainingHoursPrice;
 		
-		if (vehicleToRetire.getType() == 2 && vehicleToRetire.getNumberOfCC() > 500) {
-			totalAmount = totalAmount + 2000;
+		if (vehicleToRetire.getType() == 2 && vehicleToRetire.getNumberOfCC() > Constants.MOTORCYCLE_CC) {
+			totalAmount = totalAmount + Constants.MOTORCYCLE_EXTRA_PRICE;
 		}
 		
 		return new VehiclePaymentInfo(totalAmount, totalHours + " Hour(s)");
@@ -154,7 +155,7 @@ public class VehicleService {
 		Date date2 = null;
 		Date date1 = null;
 		
-		SimpleDateFormat myFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
+		SimpleDateFormat myFormat = new SimpleDateFormat(Constants.DATE_FORMAT_ddMMyyy);
 		String inputString1 = dateIn;
 		String inputString2 = DateUtil.getCurrentDateAndTime();
 		long diff = 0;

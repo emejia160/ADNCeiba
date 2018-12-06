@@ -6,12 +6,14 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import com.ceiba.parking.domain.Constants;
+
 public class DateUtil {
 
 	public static String getCurrentDateAndTime() {
 		
 		Date date = new Date();
-		String strDateFormat = "dd/MM/yyyy hh:mm:ss a";
+		String strDateFormat = Constants.DATE_FORMAT_ddMMyyy;
 	    DateFormat dateFormat = new SimpleDateFormat(strDateFormat);
 	    
 	    return dateFormat.format(date);

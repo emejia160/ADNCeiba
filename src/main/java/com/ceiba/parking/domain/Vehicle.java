@@ -65,17 +65,17 @@ public class Vehicle {
 	
 	public long getHourPrice() {
 		if (this.type == 1) {
-			return 1000;
+			return Constants.CAR_HOUR_PRICE;
 		} else {
-			return 500;
+			return Constants.MOTORCYCLE_HOUR_PRICE;
 		}
 	}
 	
 	public long getDayPrice() {
 		if (this.type == 1) {
-			return 8000;
+			return Constants.CAR_DAY_PRICE;
 		} else {
-			return 4000;
+			return Constants.MOTORCYCLE_DAY_PRICE;
 		}
 	}
 	

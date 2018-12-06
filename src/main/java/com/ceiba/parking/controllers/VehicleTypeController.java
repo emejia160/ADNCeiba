@@ -29,8 +29,8 @@ public class VehicleTypeController {
 	}
 	
 	@RequestMapping(value = "/vehicleTypes/delete-all", method=RequestMethod.DELETE)
-	public Response deleteTypes() {
+	public Response<?> deleteTypes() {
 		vehicleTypeRepository.deleteAll();
-		return new Response(200, "Vehicles types deleted successfully");
+		return new Response<Object>(200, "Vehicles types deleted successfully");
 	}
 }
