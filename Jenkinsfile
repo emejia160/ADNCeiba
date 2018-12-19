@@ -25,18 +25,33 @@ pipeline {
 		 stage('Checkout') {
 			 steps{
 			 	echo "------------>Checkout<------------"
-			 	checkout([$class: 'GitSCM', branches: [[name: '*/master']],
-				doGenerateSubmoduleConfigurations: false, extensions: [], gitTool:
-				'Git_Centos', submoduleCfg: [], userRemoteConfigs: [[credentialsId:
-				'GitHub_emejia160', url:
-				'https://github.com/emejia160/ADNCeiba']]])
+			 	checkout([$class: 'GitSCM', 
+			 	branches: [[name: '*/master']],
+				doGenerateSubmoduleConfigurations: false,
+				extensions: [], 
+				gitTool: 'Git_Centos', 
+				submoduleCfg: [], 
+				userRemoteConfigs: 
+					[[
+						credentialsId: 'GitHub_emejia160', 
+						url: 'https://github.com/emejia160/ADNCeiba'
+					]]])
 			 }
 		 }
+		 
+		 stage('Compile') {
+			steps{
+					echo "------------>Compile<------------"
+					sh 'gradle --b ./build.gradle compileJava'
+			}
+		}
 		 
 		 stage('Unit Tests') {
 			 steps{
 			 	echo "------------>Unit Tests<------------"
-			 	sh 'gradle --b ./build.gradle test'
+			 	sh 'gradle --stacktrace test'
+					junit '**/build/test-results/test/*.xml' //aggregate test results - JUnit
+					step( [ $class: 'JacocoPublisher' ] )
 			 }
 		 }
 		 
@@ -50,8 +65,7 @@ pipeline {
 			 steps{
 				 echo '------------>Análisis de código estático<------------'
 				 withSonarQubeEnv('Sonar') {
-					sh "${tool name: 'SonarScanner',
-					type:'hudson.plugins.sonar.SonarRunnerInstallation'}/bin/sonar-scanner
+					sh "${tool name: 'SonarScanner',type:'hudson.plugins.sonar.SonarRunnerInstallation'}/bin/sonar-scanner
 					-Dproject.settings=sonar-project.properties"
 				 }
 			 }
@@ -59,8 +73,8 @@ pipeline {
 		 
 		 stage('Build') {
 			 steps {
-				 echo "------------>Build<------------"
-				 sh 'gradle --b ./proyecto1/build.gradle compileJava'
+					 echo "------------>Build<------------"
+					 sh 'gradle --b ./build.gradle build -x test'
 				 }
 			 }
 		 }
