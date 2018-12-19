@@ -35,7 +35,6 @@ pipeline {
 						credentialsId: 'GitHub_emejia160', 
 						url: 'https://github.com/emejia160/ADNCeiba'
 					]]])
-				sh 'gradle clean'
 			 }
 		 }
 		 
