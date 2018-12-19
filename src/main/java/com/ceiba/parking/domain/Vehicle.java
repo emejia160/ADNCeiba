@@ -9,13 +9,15 @@ public class Vehicle {
 	private int type;
 	private String licencePlate;
 	private String dateIn;
+	private String typeDescription;
 	private int numberOfCC;
 	
-	public Vehicle(int type, String dateIn, String licencePlate, int numberOfCC) {
+	public Vehicle(int type, String dateIn, String licencePlate, int numberOfCC, String typeDescription) {
 		this.type = type;
 		this.dateIn = dateIn;
 		this.licencePlate = licencePlate;
 		this.numberOfCC = numberOfCC;
+		this.typeDescription = typeDescription;
 	}
 
 	public String getId() {
@@ -77,6 +79,14 @@ public class Vehicle {
 		} else {
 			return Constants.MOTORCYCLE_DAY_PRICE;
 		}
+	}
+
+	public String getTypeDescription() {
+		return typeDescription;
+	}
+
+	public void setTypeDescription(String typeDescription) {
+		this.typeDescription = typeDescription;
 	}
 	
 	

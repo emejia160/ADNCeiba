@@ -7,6 +7,7 @@ public class Constants {
 	}
 	
 	public static final int STATUS_CODE_SUCCESS = 200;
+	public static final int STATUS_CODE_FAILURE = 205;
 	public static final int CAR_DAY_PRICE = 8000;
 	public static final int CAR_HOUR_PRICE = 1000;
 	public static final int MOTORCYCLE_DAY_PRICE = 4000;

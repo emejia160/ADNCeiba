@@ -33,9 +33,9 @@ public class VehicleService {
 		List<Vehicle> vehicles = vehicleRepository.findAll();
 		
 		if (vehicles.size() > 0) {
-			return new Response<List<Vehicle>>(Constants.STATUS_CODE_SUCCESS, Constants.SUCCESS, vehicles);
+			return new Response<List<Vehicle>>(Constants.STATUS_CODE_SUCCESS, Constants.SUCCESS, setTypeDescriptionForVehicles(vehicles));
 		} else {
-			return new Response<List<Vehicle>>(Constants.STATUS_CODE_SUCCESS, Constants.NO_VEHICLES_IN_PARKING);
+			return new Response<List<Vehicle>>(Constants.STATUS_CODE_FAILURE, Constants.NO_VEHICLES_IN_PARKING);
 		}
 		
 	}
@@ -43,21 +43,21 @@ public class VehicleService {
 	public Response<?> enterVehicle(@RequestBody Vehicle vehicle) {
 		
 		if (vehicleRepository.findByLicencePlate(vehicle.getLicencePlate()) != null) {
-			return new Response<Object>(Constants.STATUS_CODE_SUCCESS, Constants.VEHICLE_ALREADY_IN_PARKING);
+			return new Response<Object>(Constants.STATUS_CODE_FAILURE, Constants.VEHICLE_ALREADY_IN_PARKING);
 		} 
 		
 		String validationMessage = validateNumMaxVehicles(vehicle.getType());
 		if (validationMessage != "") {
-			return new Response<Object>(Constants.STATUS_CODE_SUCCESS, validationMessage);
+			return new Response<Object>(Constants.STATUS_CODE_FAILURE, validationMessage);
 		}
 		
 		if (!vehicleCanEnterInParking(vehicle.getLicencePlate())) {
-			return new Response<Object>(Constants.STATUS_CODE_SUCCESS, Constants.VEHICLE_CANNOT_ENTER);
+			return new Response<Object>(Constants.STATUS_CODE_FAILURE, Constants.VEHICLE_CANNOT_ENTER);
 		}
 		
 	    vehicle.setDateIn(DateUtil.getCurrentDateAndTime());
 		vehicleRepository.save(vehicle);
-		return new Response<Object>(Constants.STATUS_CODE_SUCCESS, Constants.VEHICLE_ENTERED);
+		return new Response<Object>(Constants.STATUS_CODE_SUCCESS, Constants.VEHICLE_ENTERED, vehicle);
 		
 	}
 	
@@ -69,7 +69,7 @@ public class VehicleService {
 	public Response<VehiclePaymentInfo> retireVehicle(@RequestParam(value="plate") String licencePlate) {
 		
 		if (vehicleRepository.findByLicencePlate(licencePlate) == null) {
-			return new Response<VehiclePaymentInfo>(Constants.STATUS_CODE_SUCCESS, Constants.VEHICLE_NOT_IN_PARKING);
+			return new Response<VehiclePaymentInfo>(Constants.STATUS_CODE_FAILURE, Constants.VEHICLE_NOT_IN_PARKING);
 		} 
 		VehiclePaymentInfo paymentInfo = calculateVehicleExitInfo(licencePlate);
 		vehicleRepository.deleteByLicencePlate(licencePlate);
@@ -81,7 +81,7 @@ public class VehicleService {
 		Vehicle vehicle = vehicleRepository.findByLicencePlate(licencePlate);
 		
 		if (vehicle == null) {
-			return new Response<Vehicle>(Constants.STATUS_CODE_SUCCESS, Constants.VEHICLE_NOT_IN_PARKING);
+			return new Response<Vehicle>(Constants.STATUS_CODE_FAILURE, Constants.VEHICLE_NOT_IN_PARKING);
 		}
 		return new Response<Vehicle>(Constants.STATUS_CODE_SUCCESS, Constants.SUCCESS, vehicle);		
 	}
@@ -168,5 +168,20 @@ public class VehicleService {
 		}
 		
 		return TimeUnit.HOURS.convert(diff, TimeUnit.MILLISECONDS) + 1;
+	}
+	
+	private List<Vehicle> setTypeDescriptionForVehicles(List<Vehicle> vehicles){
+		
+		for(Vehicle vehicle : vehicles) {
+			vehicle.setTypeDescription(getNameVehiclePerType(vehicle.getType()));
+		}
+		
+		return vehicles;
+	}
+	
+	private String getNameVehiclePerType(int type) {
+		VehicleType vehicleType = vehicleTypeRepository.findByCode(type);
+		
+		return vehicleType.getDescription();
 	}
 }
