@@ -14,7 +14,7 @@ pipeline {
 	 
 	 //Una sección que define las herramientas para “autoinstalar” y poner en la PATH
 	 tools {
-		 jdk 'jdk-1.8.101' //Preinstalada en la Configuración del Master
+		 jdk 'dk-10.0.2-oth-JPR' //Preinstalada en la Configuración del Master
 		 gradle 'Gradle4.5_Centos' //Preinstalada en la Configuración del Master
 	 }
 	 
