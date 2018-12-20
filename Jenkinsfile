@@ -14,7 +14,7 @@ pipeline {
 	 
 	 //Una sección que define las herramientas para “autoinstalar” y poner en la PATH
 	 tools {
-		 jdk 'dk-10.0.2-oth-JPR' //Preinstalada en la Configuración del Master
+		 jdk 'JDK8_Centos' //Preinstalada en la Configuración del Master
 		 gradle 'Gradle4.5_Centos' //Preinstalada en la Configuración del Master
 	 }
 	 
@@ -35,6 +35,7 @@ pipeline {
 						credentialsId: 'GitHub_emejia160', 
 						url: 'https://github.com/emejia160/ADNCeiba'
 					]]])
+					sh 'gradle clean'
 			 }
 		 }
 		 
