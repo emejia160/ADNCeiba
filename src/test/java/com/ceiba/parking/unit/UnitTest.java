@@ -14,12 +14,10 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.ceiba.parking.domain.Constants;
 import com.ceiba.parking.domain.Response;
 import com.ceiba.parking.domain.Vehicle;
-import com.ceiba.parking.domain.VehiclePaymentInfo;
 import com.ceiba.parking.domain.VehicleType;
 import com.ceiba.parking.repository.VehicleRepository;
 import com.ceiba.parking.repository.VehicleTypeRepository;
@@ -34,7 +32,7 @@ import Exception.VehicleAlreadyInParking;
 import Exception.VehicleNotInParking;
 
 @SuppressWarnings("deprecation")
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class UnitTest {
 
 	private static final long EXPECTED_PAYMENT_CAR_HOUR = 1000;
@@ -191,9 +189,7 @@ public class UnitTest {
 	
 	@Test
 	public void validateMotorcycleNotMaxInParking() {
-		
-		when(vehicleTypeRepository.findByCode(1)).thenReturn(new VehicleType(2, "Moto", 10));
-		
+				
 		boolean response = vehicleServiceImpl.validateNumMaxVehiclesPerType(2);
 		assertFalse(response);
 		
@@ -265,11 +261,8 @@ public class UnitTest {
 	
 	@Test(expected = PlateWithException.class)
 	public void enterVehicleCanNotEnterException() throws NumberVehiclesMax, PlateWithException, VehicleAlreadyInParking   {
-		
-		 when(vehicleRepository.findByLicencePlate("ASD")).thenReturn(null);
-		
+				
 		 vehicleServiceImpl.enterVehicle(new Vehicle(1, "18/12/2018 01:21:11 PM", "ASD", 3000, ""));
-		
 		
 	}
 	
