@@ -17,25 +17,5 @@ public class UnitTestIntegration {
 	
 	private static final String ENTER_VEHICLE_ENDPOINT = "http://localhost:8090/vehicles";
 	
-	@Test
-	public void listAllVehiclesTest() {
-		
-		// Act
-		ResponseEntity<String> parqueaderoResponse = restTemplate.getForEntity(FIND_ALL_VEHICLES_ENDPOINT, String.class);
-
-		// Assert
-		assertFalse(parqueaderoResponse.getBody().isEmpty());
-	}
 	
-	@Test
-	public void enterVehicleTest() {
-		
-		//Vehicle vehicle = new Vehicle(1, "18/12/2018 01:21:11 PM", "FFF", 3000, "");
-		
-		// Act
-		//ResponseEntity<Response<Vehicle>> parqueaderoResponse = restTemplate.postForEntity(ENTER_VEHICLE_ENDPOINT, vehicle, Response<Vehicle>);
-
-		// Assert
-		//assertNotNull(parqueaderoResponse);
-	}
 }

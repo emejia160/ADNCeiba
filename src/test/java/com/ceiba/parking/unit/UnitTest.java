@@ -7,11 +7,14 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.ceiba.parking.domain.Constants;
 import com.ceiba.parking.domain.Response;
@@ -25,6 +28,9 @@ import com.ceiba.parking.service.VehicleService;
 import com.ceiba.parking.service.VehicleTypeService;
 import com.ceiba.parking.utils.DateUtil;
 
+import Exception.NumberVehiclesMax;
+import Exception.PlateWithException;
+import Exception.VehicleAlreadyInParking;
 import Exception.VehicleNotInParking;
 
 @SuppressWarnings("deprecation")
@@ -46,6 +52,9 @@ public class UnitTest {
 	private static final long EXPECTED_PAYMENT_CAR_28_HOURS = 12000;
 	private static final long EXPECTED_PAYMENT_MOTO_28_HOURS = 6000;
 	private static final long EXPECTED_PAYMENT_MOTO_500_28_HOURS = 8000;
+	
+	@Rule
+	public ExpectedException exceptions = ExpectedException.none();
 	
 	@InjectMocks
 	VehicleService vehicleServiceImpl;
@@ -224,24 +233,46 @@ public class UnitTest {
 	}
 	
 	@Test(expected = VehicleNotInParking.class)
-	public void retireVehicleNoInParking() throws VehicleNotInParking {
+	public void retireVehicleNoInParking() throws VehicleNotInParking   {
 		
-		when(vehicleRepository.findByLicencePlate("ASD")).thenReturn(null);
+		 when(vehicleRepository.findByLicencePlate("ASD")).thenReturn(null);
+		
+		 vehicleServiceImpl.retireVehicle("ASD");
+		
 		
 	}
 	
-	@Test
-	public void retireVehicleInParking() throws VehicleNotInParking {
+	@Test(expected = VehicleAlreadyInParking.class)
+	public void enterVehicleAlreadyInParking() throws NumberVehiclesMax, PlateWithException, VehicleAlreadyInParking   {
 		
-		Vehicle vehicle = new Vehicle(1, "18/12/2018 01:21:11 PM", "FFF", 3000, "");
-		when(vehicleRepository.findByLicencePlate("ASD")).thenReturn(vehicle);
-		when(parkingTicketServiceImpl.calculateVehicleExitInfo(vehicle)).thenReturn(new VehiclePaymentInfo());
+		Vehicle vehicle = new Vehicle(1, "18/12/2018 01:21:11 PM", "BSD", 3000, "");
+		 when(vehicleRepository.findByLicencePlate("BSD")).thenReturn(vehicle);
 		
-		VehiclePaymentInfo response = vehicleServiceImpl.retireVehicle("ASD");
+		 vehicleServiceImpl.enterVehicle(vehicle);
 		
-		assertNotNull(response);
 		
 	}
+	
+	@Test(expected = NumberVehiclesMax.class)
+	public void enterVehicleMaxException() throws NumberVehiclesMax, PlateWithException, VehicleAlreadyInParking   {
+		
+		 when(vehicleRepository.findByLicencePlate("LSD")).thenReturn(null);
+		
+		 vehicleServiceImpl.enterVehicle(new Vehicle(1, "18/12/2018 01:21:11 PM", "LSD", 3000, ""));
+		
+		
+	}
+	
+	@Test(expected = PlateWithException.class)
+	public void enterVehicleCanNotEnterException() throws NumberVehiclesMax, PlateWithException, VehicleAlreadyInParking   {
+		
+		 when(vehicleRepository.findByLicencePlate("ASD")).thenReturn(null);
+		
+		 vehicleServiceImpl.enterVehicle(new Vehicle(1, "18/12/2018 01:21:11 PM", "ASD", 3000, ""));
+		
+		
+	}
+	
 	
 	@Test
 	public void deleteVehicles() {

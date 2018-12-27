@@ -43,6 +43,11 @@ public class VehicleService {
 	
 	public Vehicle enterVehicle(Vehicle vehicle) throws NumberVehiclesMax, PlateWithException, VehicleAlreadyInParking{
 		
+		if (!vehicleCanEnterInParking(vehicle.getLicencePlate())) {
+
+			throw new PlateWithException();
+		}
+		
 		if (vehicleRepository.findByLicencePlate(vehicle.getLicencePlate()) != null) {
 			throw new VehicleAlreadyInParking();
 		} 
@@ -52,10 +57,7 @@ public class VehicleService {
 			throw new NumberVehiclesMax();
 		}
 		
-		if (!vehicleCanEnterInParking(vehicle.getLicencePlate())) {
-
-			throw new PlateWithException();
-		}
+		
 		
 	    vehicle.setDateIn(DateUtil.getCurrentDateAndTime());
 		vehicleRepository.save(vehicle);
