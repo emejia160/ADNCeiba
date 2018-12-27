@@ -20,16 +20,16 @@ public class VehicleTypeService {
 		List<VehicleType> vehicleTypes = vehicleTypeRepository.findAll();
 		
 		if (vehicleTypes.size() > 0) {
-			return new Response<List<VehicleType>>(Constants.STATUS_CODE_SUCCESS, Constants.SUCCESS, vehicleTypes);
+			return new Response<List<VehicleType>>(Constants.SUCCESS, vehicleTypes);
 		} else {
-			return new Response<List<VehicleType>>(Constants.STATUS_CODE_SUCCESS, Constants.NO_VEHICLES_IN_PARKING);
+			return new Response<List<VehicleType>>(Constants.NO_VEHICLES_IN_PARKING);
 		}
 		
 	}
 	
 	public Response<Object> deleteAll(){
 		vehicleTypeRepository.deleteAll();
-		return new Response<Object>(200, "Vehicles types deleted successfully");
+		return new Response<Object>(Constants.VEHICLE_TYPES_DELETED);
 		
 	}
 	

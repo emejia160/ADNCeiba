@@ -1,10 +1,6 @@
 package com.ceiba.parking.domain;
 
 public class Constants {
-
-	public Constants() {
-		
-	}
 	
 	public static final int STATUS_CODE_SUCCESS = 200;
 	public static final int STATUS_CODE_FAILURE = 205;
@@ -22,10 +18,14 @@ public class Constants {
 	public static final String VEHICLE_CANNOT_ENTER = "This vehicle can only enter in the parking the days Sunday and Monday";
 	public static final String VEHICLE_ENTERED = "Vehicle entered successfully";
 	public static final String VEHICLE_DELETED = "Vehicle deleted successfully";
+	public static final String VEHICLE_TYPES_DELETED = "Vehicles types deleted successfully";
 	
 	public static final String VEHICLE_NOT_IN_PARKING = "The vehicle is not in the parking!";
 	public static final String DATE_FORMAT_ddMMyyy = "dd/MM/yyyy hh:mm:ss a";
-	public static final String MAX_NUMBER_VEHICLES = "The max number of vehicles in the parking for this type is ";
+	public static final String MAX_NUMBER_VEHICLES = "The max number of vehicles in the parking";
 	public static final String VEHICLE_START_LETTER = "A";
+	
+	public static final String VEHICLE_PLATE_START_WITH_A = "AASD";
+	public static final String VEHICLE_PLATE_START_WITHOUT_A = "BASD";
 	
 }
